@@ -1,52 +1,48 @@
-import { useState } from "react";
-import axios from "axios";
-import styled from "styled-components";
+import React, {useEffect, useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { login } from "../Redux/AuthReducer/action";
+import {login} from '../redux/authReducer/action'
+import { useNavigate } from "react-router-dom";
+
+
+import styled from "styled-components";
+import { useLocation} from "react-router-dom";
 
 export const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("eve.holt@reqres.in");
+  const [password, setPassword]= useState('')
   const dispatch = useDispatch();
-  const auth = useSelector((store) => {
-    return store.authReducer;
-  });
-  console.log(auth);
-  const handleLogin = () => {
-    let loginData = { email, password };
-    dispatch(login().loginRequest());
-    axios
-      .post("https://reqres.in/api/login", loginData)
-      .then((res) => {
-        dispatch(login().loginSuccess(res.data.token));
-      })
-      .catch(() => {
-        dispatch(login().loginFailure());
-      });
-    setPassword("");
-    setEmail("");
-  };
+  const location = useLocation();
+  const navigate = useNavigate();
+  // console.log(location)
 
+  const auth = useSelector( state => state.authReducer.isAuth )
+  const error = useSelector( state => state.authReducer.error )
+  console.log(auth)
+
+  function submitHandleLog (){
+   const userData = {
+    email,
+    password,
+   }
+   dispatch(login(userData)).then(()=>{
+    navigate(location.state)
+   })
+  //  const nav= useNavigate()
+  }
+
+  
   return (
-    <DIV>
-      <h2>Log In</h2>
-      <input
-        data-testid="user-email"
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
+    <DIV auth={auth} error={error}>
+      <h2>{auth? "Login Successful" :  "Login to continue"}</h2>
+      <input data-testid="user-email" type="email" placeholder="Email" onChange={e=>{setEmail(e.target.value)}}   value={email} />
       <input
         data-testid="user-password"
         type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
         placeholder="Password"
+        value={password}
+        onChange={e=>{setPassword(e.target.value)}}
       />
-      <button data-testid="user-login" onClick={handleLogin}>
-        Log In
-      </button>
+      <button onClick={submitHandleLog} data-testid="user-login">Log In</button>
     </DIV>
   );
 };
@@ -60,10 +56,14 @@ const DIV = styled.div`
   gap: 15px;
   border: 1px solid gray;
   align-items: center;
+h2{
+  color: ${ ({auth }) => auth? "green" : "red"}
+}
   input {
     width: 80%;
     height: 30px;
     font-size: larger;
+    border : 1px solid ${({error})=> (error? "red":"green")}
   }
   button {
     width: 150px;

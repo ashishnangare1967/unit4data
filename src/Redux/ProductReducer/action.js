@@ -1,19 +1,76 @@
-import { GET_PRODUCT_FAILURE, GET_PRODUCT_REQUEST, GET_PRODUCT_SUCCESS } from "./actionTypes";
+import axios from "axios";
+import {
+  DELETE_PRODUCT_SUCCESS,
+  GET_PRODUCT_SUCCESS,
+  POST_PRODUCT_SUCCESS,
+  PRODUCT_FAILURE,
+  PRODUCT_REQUEST,
+  GET_ONE_PRODUCT_SUCCESS
+} from "../actionTypes";
 
-export const getProducts = () => {
-  const getProductRequest = () => {
-    return { type: GET_PRODUCT_REQUEST }
-  }
-  const getProductSuccess = (payload) => {
-    return { type: GET_PRODUCT_SUCCESS, payload }
-  }
-  const getProductFailure = () => {
-    return { type: GET_PRODUCT_FAILURE }
-  }
-  return { getProductRequest, getProductFailure, getProductSuccess }
+export const addProduct = (newProduct) => (dispatch) => {
+  dispatch({ type: PRODUCT_REQUEST });
+
+  axios
+    .post("http://localhost:8080/product", newProduct)
+    .then((res) => {
+      console.log(res.data);
+      dispatch({ type: POST_PRODUCT_SUCCESS });
+    })
+    .catch((err) => {
+      dispatch({ type: PRODUCT_FAILURE });
+    });
 };
 
-// NOTE: Do not remove this code,its used for calculating your score, if removed it will give you zero marks
-if (window.Cypress) {
-  window.getProducts = getProducts;
+export const getProduct =(payload)=> (dispatch) =>{
+  dispatch({type: PRODUCT_REQUEST})
+
+  axios.get("http://localhost:8080/product", {
+    params:payload
+    
+  }).then((res)=>{
+    // console.log(res.data)
+    dispatch({ type: GET_PRODUCT_SUCCESS , payload: res.data })
+  }).catch(err=>{
+    dispatch({ type: PRODUCT_FAILURE })
+  })
 }
+
+export const deleteProduct = (id) => (dispatch) =>{
+  dispatch({type: PRODUCT_REQUEST})
+
+  // const data =  axios.get(`http://localhost:8080/product`).then((res)=> {
+  //   console.log(res.data) 
+  //   let filtered = res.data.filter(el=> el.id!==id)
+  //   console.log(filtered)
+  // dispatch({tpye: DELETE_PRODUCT_SUCCESS, payload: filtered})
+  // } )
+  // console.log(data)
+
+  
+
+ return (axios.delete(`http://localhost:8080/product/${id}`).then((res)=>{
+  dispatch({tpye: DELETE_PRODUCT_SUCCESS})
+  }).catch(err=>{
+    dispatch({ type: PRODUCT_FAILURE })
+  }))
+
+}
+
+
+
+export const editProduct = (id,data) => (dispatch)=>{
+  dispatch({type: PRODUCT_REQUEST})
+
+  axios.put(`http://localhost:8080/product/${id}`,data, {
+    
+  }).then((res)=>{
+    console.log(res.data)
+    dispatch({ type: GET_ONE_PRODUCT_SUCCESS , payload: res.data })
+  }).catch(err=>{
+    dispatch({ type: PRODUCT_FAILURE })
+  })
+
+}
+
+

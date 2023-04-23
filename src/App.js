@@ -1,13 +1,21 @@
+import React from "react";
+
 import "./App.css";
-import { Navbar } from "./Components/Navbar";
-import { MainRoutes } from "./Pages/MainRoutes";
+import MainRoutes from "./pages/MainRoutes";
+import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
 
 function App() {
-  //Do not modify anything in this file
+
+ 
+
+
   return (
     <div className="App">
-      <Navbar />
-      <MainRoutes />
+      {/* <Home/> */}
+      <Navbar/>
+      <MainRoutes/>
+      
     </div>
   );
 }

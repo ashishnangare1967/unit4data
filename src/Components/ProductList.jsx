@@ -1,30 +1,48 @@
-import axios from "axios";
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { getProducts } from "../Redux/ProductReducer/action";
-import { ProductCard } from "./ProductCard";
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import ProductCard from './ProductCard'
+import styled from 'styled-components'
+import { getProduct } from '../redux/productReducer/action'
+import { useLocation, useSearchParams } from 'react-router-dom'
 
-export const ProductList = () => {
-  const url = `http://localhost:${process.env.REACT_APP_JSON_SERVER_PORT}/products`;
-  const dispatch = useDispatch();
-  const prod = useSelector((store) => store.productReducer.products);
-  useEffect(() => {
-    dispatch(getProducts().getProductRequest());
+const ProductList = () => {
+ 
+    const products = useSelector( state => state.productReducer.product)
+    const [searchParams] = useSearchParams()
+    const dispatch = useDispatch()
+    // console.log(searchParams.getAll("gender"))
+    
+    
+    const location = useLocation()
 
-    axios
-      .get(url)
-      .then((res) => {
-        dispatch(getProducts().getProductSuccess(res.data));
-      })
-      .catch(() => {
-        dispatch(getProducts().getProductFailure());
-      });
-  }, []);
+    useEffect(()=>{
+      let params= {
+        gender:searchParams.getAll("gender"), 
+        category: searchParams.getAll("Category"),
+        _sort: searchParams.get('order') && 'price',
+        _order: searchParams.get('order'),
+        _page: searchParams.get('page'),
+        _limit: searchParams.get('limit'),
+
+        
+      }
+      dispatch(getProduct(params))
+    },[location.search])
+
   return (
-    <div data-testid="product-list">
-      {prod.map((el, index) => {
-        return <ProductCard key={index} data={el} />;
-      })}
+    <div>
+    <Div>
+      
+      {products.length>0 && products.map(el=> <ProductCard key={el.id} {...el}/>)}
+    </Div>
     </div>
-  );
-};
+  )
+}
+
+const Div = styled.div`
+    display: grid;
+    grid-template-columns: auto auto auto;
+    grid-gap: 20px
+`
+
+export default ProductList

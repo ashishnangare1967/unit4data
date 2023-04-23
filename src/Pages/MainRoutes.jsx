@@ -1,23 +1,23 @@
+import React from 'react'
 import { Route, Routes } from "react-router-dom";
-import { Homepage } from "./Homepage";
-import { Login } from "./Login";
-import { CartPage } from "./CartPage";
-import { PrivateRoute } from "../Components/PrivateRoute";
+import Admin from './Admin';
+import { Login } from './Login';
+import EditPage from "./EditPage"
+import Home from './Home';
+import PrivateRoutes from '../components/PrivateRoutes';
 
-export const MainRoutes = () => {
+
+
+const MainRoutes = () => {
   return (
-    <Routes>
-      {/* Provide all Routes here */}
-      <Route path="/" element={<Homepage />} />
-      <Route
-        path="/cart"
-        element={
-          <PrivateRoute>
-            <CartPage />
-          </PrivateRoute>
-        }
-      />
-      <Route path="/login" element={<Login />} />
-    </Routes>
-  );
-};
+   <Routes  >
+    <Route path = '/' element ={<Home/>} />
+    <Route path = '/add-product' element = {<PrivateRoutes> <Admin/> </PrivateRoutes>} />
+    <Route path = '/login' element = {<Login/>} />
+    <Route path ='/edit/:id' element={<PrivateRoutes><EditPage/></PrivateRoutes>} />
+    <Route path ="*" element = {<h3> 404 pag3 not found</h3> }/>
+   </Routes>
+  )
+}
+
+export default MainRoutes

@@ -1,18 +1,16 @@
-import { reducer as authReducer } from "./AuthReducer/reducer";
-import { reducer as productReducer } from "./ProductReducer/reducer";
-import { reducer as cartReducer } from "./CartReducer/reducer";
+import { applyMiddleware, legacy_createStore } from "@reduxjs/toolkit";
 
-import { combineReducers, legacy_createStore } from "redux";
+import { combineReducers } from "@reduxjs/toolkit";
+
+import {reducer as authReducer} from "./authReducer/reducer"
+
+import {reducer as productReducer} from "./productReducer/reducer"
+
+import thunk from 'redux-thunk'
 
 const rootReducer = combineReducers({
-  authReducer: authReducer,
-  productReducer: productReducer,
-  cartReducer: cartReducer
-});
+    authReducer,
+    productReducer
+})
 
-export const store = legacy_createStore(rootReducer);
-
-// NOTE: Do not remove this code,its used for calculating your score, if removed it will give you zero marks
-if (window.Cypress) {
-  window.store = store;
-}
+export const store = legacy_createStore(rootReducer, applyMiddleware(thunk))
