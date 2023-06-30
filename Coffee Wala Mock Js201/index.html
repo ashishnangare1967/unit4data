@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home Page</title>
+  <style>
+    /* All Your css for Home page goes here  */
+    #menu-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-gap: 10px;
+      margin-top: 10px;
+      margin-left: 10px;
+      margin-right: 10px;
+      width: 100%;
+    }
+
+    .image-container img {
+      width: 150px;
+      height: 150px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="nav">
+    <h1>Web Coffee Shop Menu</h1>
+    <a href="./index.html">Home</a>
+    <a href="./order.html">Ordered</a>
+  </div>
+  <div id="filter">
+    <input type="number" id="lower" />
+    <input type="number" id="upper" />
+    <button id="filter-btn">Filter</button>
+  </div>
+  <select id="sort">
+    <option value="">Sort By Price</option>
+    <option value="asc">Ascending</option>
+    <option value="desc">Descending</option>
+  </select>
+  <h1 id="alert"></h1>
+  <div id="menu-container">
+    <!-- Here Append All the Items  -->
+  </div>
+</body>
+<script>
+  // All your JS code for Home Page goes here
+  const url = `https://dbioz2ek0e.execute-api.ap-south-1.amazonaws.com/mockapi/get-coffee`;
+
+  const menuContainer = document.querySelector("#menu-container");
+  const alert = document.querySelector("#alert");
+  const lower = document.querySelector("#lower");
+  const upper = document.querySelector("#upper");
+  const filterBtn = document.querySelector("#filter-btn");
+  const sort = document.querySelector("#sort");
+
+  // get all the items
+  fetch(url)
+    .then((response) => {
+      return response.json();
+    })
+    .then((data) => {
+      renderItems(data.data);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+
+  // render all the items
+  function renderItems(data) {
+    let output = "";
+    data.forEach((item) => {
+      output += `
+        <div class="item">
+            <div class="image-container">
+                <img src="${item.image}" alt="" />
+            </div>
+            <h3>${item.title}</h3>
+            <p>${item.description}</p>
+            <div class="price">
+                <h3>Price : ${item.price}</h3>
+            </div>
+            <button class="buy-btn" onclick="buyItem(${item.id})">Buy</button>
+        </div>
+    `;
+    });
+    menuContainer.innerHTML = output;
+  }
+
+  // buy item
+  function buyItem(id) {
+    let buyItems = [];
+    if (localStorage.getItem("buy") === null) {
+      buyItems.push(id);
+      localStorage.setItem("buy", JSON.stringify(buyItems));
+      alert.innerHTML = "Successfully Placed Order";
+      alert.style.color = "green";
+    } else {
+      buyItems = JSON.parse(localStorage.getItem("buy"));
+      if (buyItems.includes(id)) {
+        alert.innerHTML = "Already Placed Order";
+        alert.style.color = "red";
+      } else {
+        buyItems.push(id);
+        localStorage.setItem("buy", JSON.stringify(buyItems));
+        alert.innerHTML = "Successfully Placed Order";
+        alert.style.color = "green";
+      }
+    }
+  }
+  
+  let arr = []
+  filterBtn.addEventListener("click" , ()=>{
+    let lowerVal = lower.value;
+    let upperVal = upper.value;
+    fetch(url)
+    .then((response)=>{
+      return response.json()
+    })
+    .then((data)=>{
+      console.log(data.data)
+      let filterdata = data.data.forEach(element => {
+      if(lowerVal !== "" && upperVal !== ""){
+        return true
+      }else{
+        return false
+      }
+    });
+    arr = filterdata
+    })
+  })
+    renderItems(arr)
+
+  // sort item
+  sort.addEventListener("change", sortItems);
+
+  function sortItems() {
+    let sortVal = sort.value;
+    if (sortVal === "asc") {
+      fetch(
+        `https://dbioz2ek0e.execute-api.ap-south-1.amazonaws.com/mockapi/get-coffee?sort=price&order=asc`
+      )
+        .then((response) => {
+          return response.json();
+        })
+        .then((data) => {
+          renderItems(data.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else if (sortVal === "desc") {
+      fetch(
+        `https://dbioz2ek0e.execute-api.ap-south-1.amazonaws.com/mockapi/get-coffee?sort=price&order=desc`
+      )
+        .then((response) => {
+          return response.json();
+        })
+        .then((data) => {
+          renderItems(data.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  }
+</script>
+
+</html>
